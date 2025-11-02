@@ -1,18 +1,11 @@
-import logo from './logo.svg';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
+      <i className="fa-sharp fa-solid fa-user"></i>
+      <h1>Author Blog</h1>
+      <p>Font Awesome 7.1.0 is working!</p>
     </div>
   );
 }
