@@ -344,7 +344,7 @@
       "id": 36,
       "author_id": 10,
       "post_id": "002",
-      "content": "Дмитрий, спасибо! А ещё можно использовать esbuild для транспиляции вместо tsc. У нас в проекте это дало прирост скорости в 5 раз. { test: /\.tsx?$/, use: [{ loader: 'esbuild-loader', options: { loader: 'tsx', target: 'es2015' } }] }",
+      "content": "Дмитрий, спасибо! А ещё можно использовать esbuild для транспиляции вместо tsc. У нас в проекте это дало прирост скорости в 5 раз. { test: /tsx?$/, use: [{ loader: 'esbuild-loader', options: { loader: 'tsx', target: 'es2015' } }] }",
       "published_at": "2023-04-05 19:30"
     },
     {
@@ -624,7 +624,7 @@
       "id": 76,
       "author_id": 5,
       "post_id": "004",
-      "content": "Наташа, вот пример для Next.js: // pages/_app.tsx import { wrapper } from '../store'; function MyApp({ Component, pageProps }: AppProps) { return <Component {...pageProps} />; } export default wrapper.withRedux(MyApp); // store.ts import { createWrapper } from 'next-redux-wrapper'; export const wrapper = createWrapper(() => store); // pages/index.tsx export const getServerSideProps = wrapper.getServerSideProps( (store) => async (context) => { store.dispatch(api.endpoints.getPosts.initiate()); await Promise.all(store.dispatch(api.util.getRunningQueriesThunk())); return { props: {} }; } );",
+      "content": "Наташа, вот пример для Next.js: // pages/_app import { wrapper } from '../store'; function MyApp({ Component, pageProps }: AppProps) { return <Component {...pageProps} />; } export default wrapper.withRedux(MyApp); // store.ts import { createWrapper } from 'next-redux-wrapper'; export const wrapper = createWrapper(() => store); // pages/index export const getServerSideProps = wrapper.getServerSideProps( (store) => async (context) => { store.dispatch(api.endpoints.getPosts.initiate()); await Promise.all(store.dispatch(api.util.getRunningQueriesThunk())); return { props: {} }; } );",
       "published_at": "2023-04-15 17:30"
     },
     {
