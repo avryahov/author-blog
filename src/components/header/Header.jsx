@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 import styled from 'styled-components';
-import { Description, Logo } from './components';
+import { ControlPanel, Description, Logo } from './components';
 
 const Header = ({ className }) => (
   <header className={className}>
     <Logo />
     <Description />
+    <ControlPanel />
   </header>
 );
 
