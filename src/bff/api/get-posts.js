@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import axios from 'axios';
 import { transformPost } from '../transformer';
 
@@ -8,7 +9,7 @@ export const getPosts = async (searchPhrase, page, limit) =>
     .get(postsUrl + '?title_like=' + searchPhrase + '&_page=' + page + '&_limit=' + limit)
     .then(response => Promise.all([response.data, response.headers['x-total-count']]))
     .then(([post, count]) => ({
-      posts: post && post.map(transformPost),
+      posts: post?.map(transformPost),
       count,
     }))
-    .catch(catchResponse => console.error(catchResponse));
+    .catch(error_ => console.error(error_));
