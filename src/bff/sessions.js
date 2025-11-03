@@ -1,22 +1,17 @@
-const sessions = new Map();
+export const sessions = {
+  list: {},
+  remove(hash) {
+    delete this.list[hash];
+  },
+  create(user) {
+    const hash = Math.random().toFixed(50);
+    this.list[hash] = user;
 
-export const createSession = user => {
-  const hash = 'sess_' + Math.random().toString(36).substring(2, 15);
-  sessions.set(hash, { user, createdAt: Date.now() });
+    return hash;
+  },
+  access(hash, accessRoles) {
+    const user = this.list[hash];
 
-  return hash;
-};
-
-export const getSession = hash => {
-  return sessions.get(hash);
-};
-
-export const access = (hash, allowedRoles = []) => {
-  const session = getSession(hash);
-
-  if (!session?.user) {
-    return false;
-  }
-
-  return allowedRoles.includes(session.user.roleId);
+    return !!user && accessRoles.includes(user.roleId);
+  },
 };
