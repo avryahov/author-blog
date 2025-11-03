@@ -1,7 +1,7 @@
-import { getPost } from "../api";
-import { getPostCommentsWithAuthor } from "../utils";
+import { getPost } from '../api';
+import { getPostCommentsWithAuthor } from '../utils';
 
-export const fetchPost = async (postId) => {
+export const fetchPost = async postId => {
   let post;
   let error;
 

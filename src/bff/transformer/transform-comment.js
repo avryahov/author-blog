@@ -1,4 +1,4 @@
-export const transformComment = (dbComment) => {
+export const transformComment = dbComment => {
   return {
     authorId: dbComment.author_id,
     publishedAt: dbComment.published_at,

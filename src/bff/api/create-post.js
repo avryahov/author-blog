@@ -1,8 +1,8 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { genearateDate } from "../utils";
+import { genearateDate } from '../utils';
 
-const url = "http://localhost:3005/posts";
+const url = 'http://localhost:3005/posts';
 
 export const createPost = ({ imageUrl, title, content }) =>
   axios
@@ -12,4 +12,4 @@ export const createPost = ({ imageUrl, title, content }) =>
       title,
       content,
     })
-    .then((response) => response.data);
+    .then(response => response.data);

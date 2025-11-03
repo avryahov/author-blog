@@ -1,13 +1,13 @@
-import { ROLE } from "../../constant";
-import { getUsers } from "../api";
-import { sessions } from "../sessions";
+import { ROLE } from '../../constant';
+import { getUsers } from '../api';
+import { sessions } from '../sessions';
 
-export const fetchUsers = async (userSession) => {
+export const fetchUsers = async userSession => {
   const accessRoles = [ROLE.ADMIN];
 
   if (!sessions.access(userSession, accessRoles)) {
     return {
-      error: "Доступ запрещен",
+      error: 'Доступ запрещен',
       res: null,
     };
   }

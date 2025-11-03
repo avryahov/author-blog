@@ -1,4 +1,4 @@
-export const transformPost = (dbPost) => {
+export const transformPost = dbPost => {
   return {
     id: dbPost.id,
     title: dbPost.title,

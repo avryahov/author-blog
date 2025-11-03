@@ -1,6 +1,6 @@
-import { ROLE } from "../../constant";
-import { createPost, updatePost } from "../api";
-import { sessions } from "../sessions";
+import { ROLE } from '../../constant';
+import { createPost, updatePost } from '../api';
+import { sessions } from '../sessions';
 
 export const savePost = async (hash, newPostData) => {
   const accessRoles = [ROLE.ADMIN];
@@ -9,15 +9,12 @@ export const savePost = async (hash, newPostData) => {
 
   if (!access) {
     return {
-      error: "Доступ запрещен",
+      error: 'Доступ запрещен',
       res: null,
     };
   }
 
-  const savedPost =
-    newPostData.id === ""
-      ? await createPost(newPostData)
-      : await updatePost(newPostData);
+  const savedPost = newPostData.id === '' ? await createPost(newPostData) : await updatePost(newPostData);
 
   return {
     res: savedPost,

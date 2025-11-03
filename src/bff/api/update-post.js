@@ -1,12 +1,12 @@
-import axios from "axios";
+import axios from 'axios';
 
-const url = "http://localhost:3005/posts";
+const url = 'http://localhost:3005/posts';
 
 export const updatePost = ({ id, imageUrl, title, content }) =>
   axios
-    .patch(url + "/" + id, {
+    .patch(url + '/' + id, {
       image_url: imageUrl,
       title,
       content,
     })
-    .then((loadedPost) => loadedPost.data);
+    .then(loadedPost => loadedPost.data);

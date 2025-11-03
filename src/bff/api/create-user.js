@@ -1,8 +1,8 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { genearateDate } from "../utils";
+import { genearateDate } from '../utils';
 
-const usersUrl = "http://localhost:3005/users";
+const usersUrl = 'http://localhost:3005/users';
 
 export const createUser = (regLogin, regPassword) =>
   axios
@@ -12,4 +12,4 @@ export const createUser = (regLogin, regPassword) =>
       role_id: 2,
       registered_at: genearateDate(),
     })
-    .then((response) => response.data);
+    .then(response => response.data);

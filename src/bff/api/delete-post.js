@@ -1,5 +1,5 @@
-import axios from "axios";
+import axios from 'axios';
 
-const url = "http://localhost:3005/posts";
+const url = 'http://localhost:3005/posts';
 
-export const deletePost = (postId) => axios.delete(url + "/" + postId);
+export const deletePost = postId => axios.delete(url + '/' + postId);

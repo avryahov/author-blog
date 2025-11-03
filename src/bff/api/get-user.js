@@ -1,10 +1,10 @@
-import axios from "axios";
-import { transformUser } from "../transformer";
+import axios from 'axios';
+import { transformUser } from '../transformer';
 
-const usersUrl = "http://localhost:3005/users";
+const usersUrl = 'http://localhost:3005/users';
 
-export const getUser = async (loginToFind) =>
+export const getUser = async loginToFind =>
   axios
     .get(usersUrl + `?login=${loginToFind}`)
-    .then((response) => response.data[0])
-    .then((user) => user && transformUser(user));
+    .then(response => response.data[0])
+    .then(user => user && transformUser(user));

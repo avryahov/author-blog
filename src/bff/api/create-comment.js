@@ -1,7 +1,7 @@
-import axios from "axios";
-import { genearateDate } from "../utils";
+import axios from 'axios';
+import { genearateDate } from '../utils';
 
-const commentsUrl = "http://localhost:3005/comments";
+const commentsUrl = 'http://localhost:3005/comments';
 
 export const createComment = (userId, postId, content) =>
   axios
@@ -11,4 +11,4 @@ export const createComment = (userId, postId, content) =>
       published_at: genearateDate(),
       content,
     })
-    .then((response) => response.data);
+    .then(response => response.data);

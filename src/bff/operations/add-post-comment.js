@@ -1,14 +1,14 @@
-import { ROLE } from "../../constant";
-import { createComment, getPost } from "../api";
-import { sessions } from "../sessions";
-import { getPostCommentsWithAuthor } from "../utils";
+import { ROLE } from '../../constant';
+import { createComment, getPost } from '../api';
+import { sessions } from '../sessions';
+import { getPostCommentsWithAuthor } from '../utils';
 
 export const addComment = async (userSession, userId, postId, content) => {
   const accessRoles = [ROLE.ADMIN, ROLE.MODERATOR, ROLE.READER];
 
   if (!sessions.access(userSession, accessRoles)) {
     return {
-      error: "Доступ запрещен",
+      error: 'Доступ запрещен',
       res: null,
     };
   }

@@ -1,5 +1,5 @@
-import { sessions } from "../sessions";
+import { sessions } from '../sessions';
 
-export const logout = (session) => {
+export const logout = session => {
   sessions.remove(session);
 };

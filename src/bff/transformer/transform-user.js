@@ -1,4 +1,4 @@
-export const transformUser = (dbUser) => {
+export const transformUser = dbUser => {
   return {
     id: dbUser.id,
     login: dbUser.login,
