@@ -1,30 +1,34 @@
-import { createSession } from '../sessions';
+import { getUser } from '../api';
+import { sessions } from '../sessions';
 
-const mockUsers = [
-  { id: '001', login: 'admin', password: 'admin123', role_id: 0 },
-  { id: '002', login: 'admin2', password: 'admin1', role_id: 1 },
-  { id: '003', login: 'ivan', password: 'admin1', role_id: 2 },
-];
-
-export const authorize = (login, password) => {
-  const user = mockUsers.find(u => u.login === login && u.password === password);
+export const authorize = async (authLogin, authPassword) => {
+  const user = await getUser(authLogin);
 
   if (!user) {
-    return { error: 'Пользователь не найден или неверный пароль' };
+    return {
+      res: null,
+      error: ' Пользователь не найден',
+    };
   }
 
-  const session = createSession({
-    id: user.id,
-    login: user.login,
-    roleId: user.role_id,
-  });
+  const { id, password, login, role_id: roleId } = user;
+
+  if (authPassword !== password) {
+    return {
+      res: null,
+      error: ' Неверный пароль',
+    };
+  }
+
+  const session = sessions.create(user);
 
   return {
     res: {
-      id: user.id,
-      login: user.login,
-      roleId: user.role_id,
+      id,
+      login,
+      roleId,
       session,
     },
+    error: null,
   };
 };
