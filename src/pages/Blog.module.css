@@ -1,0 +1,15 @@
+.appColumn {
+  position: relative;
+  width: 1000px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.content {
+  margin: 20px;
+  padding-top: 120px;
+}

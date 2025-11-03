@@ -10,3 +10,13 @@ export const createSession = user => {
 export const getSession = hash => {
   return sessions.get(hash);
 };
+
+export const access = (hash, allowedRoles = []) => {
+  const session = getSession(hash);
+
+  if (!session?.user) {
+    return false;
+  }
+
+  return allowedRoles.includes(session.user.roleId);
+};
