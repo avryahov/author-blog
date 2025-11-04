@@ -11,9 +11,9 @@ const reducer = combineReducers({
   app: appReducer,
 });
 
-const composeEnhagers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE || compose;
+const composeEnhancers = (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
-export const store = createStore(reducer, composeEnhagers(applyMiddleware(thunk)));
+export const store = createStore(reducer, composeEnhancers(applyMiddleware(thunk)));
 -e 
 
 === Файл: ./src/App.css ===
@@ -70,7 +70,7 @@ export const checkAccess = (access, userRole) => access.includes(userRole);
 === Файл: ./src/index.css ===
 -e 
 
-=== Файл: ./src/components/footer/footer.jsx ===
+=== Файл: ./src/components/footer/Footer.jsx ===
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -216,9 +216,9 @@ export const AuthRegFormError = styled.div({
 export { AuthRegFormError } from './auth-reg-form-error/auth-reg-form-error.js';
 export { Button } from './button/button.jsx';
 export { Error } from './error/error.jsx';
-export { Footer } from './footer/footer.jsx';
+export { Footer } from './footer/Footer.jsx';
 export { H2 } from './h2/h2.jsx';
-export { StyledHeader } from './header/header.jsx';
+export { StyledHeader } from './header/Header.jsx';
 export { Input } from './input/input.jsx';
 export { PrivateContent } from './private-content/private-content.jsx';
 -e 
@@ -317,7 +317,7 @@ Error.propTypes = {
 };
 -e 
 
-=== Файл: ./src/components/header/header.jsx ===
+=== Файл: ./src/components/header/Header.jsx ===
 /* eslint-disable react/prop-types */
 import styled from 'styled-components';
 import { ControlPanel, Description, Logo } from './components';
@@ -546,8 +546,8 @@ export { ROLE } from './role.js';
 
 === Файл: ./src/constant/error.js ===
 export const ERROR = {
-  PAGE_NOT_EXIST: "Такая страница не существует",
-  ACCESS_DENIED: "Доступ запрещен",
+  PAGE_NOT_EXIST: 'Такая страница не существует',
+  ACCESS_DENIED: 'Доступ запрещен',
 };
 -e 
 
@@ -726,23 +726,24 @@ export const authorize = async (authLogin, authPassword) => {
     };
   }
 
-  const { id, password, login, role_id: roleId } = user;
+  const { id, password, login, roleId } = user;
 
-  if (authPassword !== password) {
+  if (authPassword != password) {
     return {
       res: null,
       error: ' Неверный пароль',
     };
   }
 
-  const session = sessions.create(user);
+  const session = sessions.create();
+  sessions.create(session);
 
   return {
     res: {
       id,
       login,
       roleId,
-      session,
+      session: sessions.create(user),
     },
     error: null,
   };
@@ -917,16 +918,14 @@ export const register = async (regLogin, regPassword) => {
       error: 'Такой логин уже существует',
     };
   }
-
   const createdUser = await createUser(regLogin, regPassword);
-  const session = sessions.create(createdUser);
 
   return {
     res: {
       id: createdUser.id,
       login: createdUser.login,
       roleId: createdUser.role_id,
-      session,
+      session: sessions.create(createdUser),
     },
     error: null,
   };
@@ -1274,6 +1273,14 @@ export const setUserRole = (userId, roleId) =>
 export const selectUserSession = ({ user }) => user.session;
 -e 
 
+=== Файл: ./src/actions/reset-post-data.js ===
+import { ACTION_TYPE } from '../constant';
+
+export const RESET_POST_DATA = {
+  type: ACTION_TYPE.RESET_POST_DATA,
+};
+-e 
+
 === Файл: ./src/actions/logout.js ===
 import { ACTION_TYPE } from '../constant';
 import { server } from '../bff';
@@ -1285,10 +1292,92 @@ export const logout = session => {
 };
 -e 
 
+=== Файл: ./src/actions/add-comment-async.js ===
+import { setPostData } from './set-post-data';
+
+export const addCommentAsync = (requestServer, userId, postId, content, login) => dispatch => {
+  requestServer('addComment', userId, postId, content, login).then(postData => dispatch(setPostData(postData.res)));
+};
+-e 
+
 === Файл: ./src/actions/index.js ===
 export { logout } from './logout';
 export { selectUserSession } from './select-user-session';
 export { setUser } from './set-session';
+export { addCommentAsync } from './add-comment-async';
+export { CLOSE_MODAL } from './close-modal';
+export { loadPostAsync } from './load-post-async';
+export { openModal } from './open-modal';
+export { removeCommentAsync } from './remove-comment-async';
+export { removePostAsync } from './remove-post-async';
+export { savePostAsync } from './save-post-async';
+export { setPostData } from './set-post-data';
+export { RESET_POST_DATA } from './reset-post-data';
+-e 
+
+=== Файл: ./src/actions/save-post-async.js ===
+import { setPostData } from './set-post-data';
+
+export const savePostAsync = (requestServer, newPostData) => dispatch =>
+  requestServer('savePost', newPostData).then(updatedPost => {
+    dispatch(setPostData(updatedPost.res));
+
+    return updatedPost.res;
+  });
+-e 
+
+=== Файл: ./src/actions/close-modal.js ===
+import { ACTION_TYPE } from '../constant';
+
+export const CLOSE_MODAL = {
+  type: ACTION_TYPE.CLOSE_MODAL,
+};
+-e 
+
+=== Файл: ./src/actions/open-modal.js ===
+import { ACTION_TYPE } from '../constant';
+
+export const openModal = (modalParams) => ({
+  type: ACTION_TYPE.OPEN_MODAL,
+  payload: modalParams,
+});
+-e 
+
+=== Файл: ./src/actions/remove-post-async.js ===
+export const removePostAsync = (requestServer, postId) => () =>
+  requestServer("removePost", postId);
+-e 
+
+=== Файл: ./src/actions/load-post-async.js ===
+import { setPostData } from './set-post-data';
+
+export const loadPostAsync = (requestServer, postId) => dispatch =>
+  requestServer('fetchPost', postId).then(postResponse => {
+    if (postResponse.res) {
+      dispatch(setPostData(postResponse.res));
+    }
+
+    return postResponse;
+  });
+-e 
+
+=== Файл: ./src/actions/remove-comment-async.js ===
+import { setPostData } from './set-post-data';
+
+export const removeCommentAsync = (requestServer, postId, id) => dispatch => {
+  requestServer('removePostComment', postId, id).then(postData => dispatch(setPostData(postData.res)));
+};
+-e 
+
+=== Файл: ./src/actions/set-post-data.js ===
+import { ACTION_TYPE } from '../constant';
+
+export const setPostData = postData => {
+  return {
+    type: ACTION_TYPE.SET_POST_DATA,
+    payload: postData,
+  };
+};
 -e 
 
 === Файл: ./src/actions/set-session.js ===
@@ -1310,7 +1399,7 @@ import { setUser } from './actions';
 import './App.css';
 import { server } from './bff';
 import { Footer, StyledHeader } from './components/';
-import { Authorization, Main, Registration, Users } from './pages/';
+import { Authorization, Main, Post, Registration, Users } from './pages/';
 
 const Content = styled.div({
   margin: '20px',
@@ -1353,6 +1442,9 @@ function App() {
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Authorization />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="/post/:postId" element={<Post />} />
+          <Route path="/post/:postId/edit" element={<Post />} />
+          <Route path="/post" element={<Post />} />
           <Route path="/users" element={<Users />} />
         </Routes>
       </Content>
@@ -1472,11 +1564,503 @@ const AuthContainer = styled.div({
 });
 -e 
 
+=== Файл: ./src/pages/post/components/comments/components/comment/comment.jsx ===
+/* eslint-disable react/prop-types */
+import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { CLOSE_MODAL, openModal, removeCommentAsync } from '../../../../../../actions';
+import { Icon } from '../../../../../../components/header/components';
+import { ROLE } from '../../../../../../constant';
+import { useServerRequest } from '../../../../../../hooks';
+import { selectUserRole } from '../../../../../../selectors';
+
+export const Comment = ({ id, author, postId, content, publishedAt }) => {
+  const dispatch = useDispatch();
+  const requestServer = useServerRequest();
+  const userRole = useSelector(selectUserRole);
+
+  const onCommentDelete = commentId => {
+    dispatch(
+      openModal({
+        text: 'Удалить комментарий?',
+        onConfirm: () => {
+          dispatch(removeCommentAsync(requestServer, postId, commentId));
+          dispatch(CLOSE_MODAL);
+        },
+        onCancel: () => dispatch(CLOSE_MODAL),
+      })
+    );
+  };
+  const isAdminOrModerator = [ROLE.ADMIN, ROLE.MODERATOR].includes(userRole);
+
+  return (
+    <CommentContainer>
+      <div className="comment-container">
+        <div className="information-panel">
+          <div className="author">
+            <Icon id="fa-user-circle-o" margin="0 10px 0 0" size="18px" inactive={true} />
+            {author}
+          </div>
+
+          <div className="published-at">
+            <Icon id="fa-calendar-o" margin="0 0 0 10px" size="18px" inactive={true} />
+            {publishedAt}
+          </div>
+        </div>
+
+        <div className="comment-text">{content}</div>
+      </div>
+
+      {isAdminOrModerator && (
+        <div>
+          <Icon id="fa-trash-o" margin="0 0 0 10px" size="18px" onClick={() => onCommentDelete(id)} />
+        </div>
+      )}
+    </CommentContainer>
+  );
+};
+
+const CommentContainer = styled.div({
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'row',
+  marginTop: '10px',
+
+  '& .information-panel': {
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+    height: '1rem',
+  },
+
+  '& .published-at': {
+    display: 'flex',
+    gap: '10px',
+  },
+
+  '& .author': {
+    display: 'flex',
+  },
+
+  '& .comment-container': {
+    border: '1px solid black',
+    width: '100%',
+    padding: '5px 10px',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '5px',
+  },
+});
+
+Comment.propTypes = {
+  id: PropTypes.number.isRequired,
+  author: PropTypes.string.isRequired,
+  postId: PropTypes.string.isRequired,
+  content: PropTypes.string.isRequired,
+  publishedAt: PropTypes.string.isRequired,
+};
+-e 
+
+=== Файл: ./src/pages/post/components/comments/components/index.js ===
+export { Comment } from './comment/comment.jsx';
+-e 
+
+=== Файл: ./src/pages/post/components/comments/comments.jsx ===
+/* eslint-disable react/prop-types */
+import PropTypes from 'prop-types';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { addCommentAsync } from '../../../../actions';
+import { Icon } from '../../../../components/header/components';
+import { PROP_TYPE, ROLE } from '../../../../constant';
+import { useServerRequest } from '../../../../hooks';
+import { selectUserId, selectUserLogin, selectUserRole } from '../../../../selectors';
+import { Comment } from './components';
+
+export const Comments = ({ comments, postId }) => {
+  const [newComment, setNewComment] = useState('');
+  const dispatch = useDispatch();
+  const userId = useSelector(selectUserId);
+  const requestServer = useServerRequest();
+  const login = useSelector(selectUserLogin);
+  const userRole = useSelector(selectUserRole);
+
+  const onNewCommentAdd = (currentUserId, selectedPostId, content) => {
+    if (content) {
+      dispatch(addCommentAsync(requestServer, currentUserId, selectedPostId, content, login));
+      setNewComment('');
+    }
+  };
+
+  const isGuest = userRole === ROLE.GUEST;
+
+  return (
+    <CommentsContainer>
+      {!isGuest && (
+        <div className="new-comment">
+          <textarea
+            name="comment"
+            value={newComment}
+            placeholder="Комментарий..."
+            onChange={({ target }) => setNewComment(target.value)}
+          />
+          <Icon
+            id="fa-paper-plane-o"
+            margin="0 0 0 10px"
+            size="18px"
+            onClick={() => onNewCommentAdd(userId, postId, newComment)}
+          />
+        </div>
+      )}
+
+      <div className="comments">
+        {comments.map(({ id, author, content, publishedAt }) => (
+          <Comment key={id} {...{ id, postId, author, content, publishedAt }} />
+        ))}
+      </div>
+    </CommentsContainer>
+  );
+};
+
+const CommentsContainer = styled.div({
+  width: '580px',
+  display: 'flex',
+  alignItems: 'center',
+  flexDirection: 'column',
+  margin: '10px  auto',
+
+  '& .new-comment': {
+    width: '100%',
+    display: 'flex',
+    margin: '20px 0 0 ',
+  },
+
+  '&  textarea': {
+    width: '100%',
+    resize: 'none',
+    fontSize: '18px',
+    height: '120px',
+  },
+
+  '&  .comments': {
+    width: '100%',
+  },
+});
+
+Comments.propTypes = {
+  comments: PropTypes.arrayOf(PROP_TYPE.COMMENT).isRequired,
+  postId: PropTypes.string.isRequired,
+};
+-e 
+
+=== Файл: ./src/pages/post/components/post-form/utils/sanitize-content.js ===
+export const sanitizeContent = text => {
+  return text
+    .replace(/<br>/gim, '\n')
+    .replace(/<div>/gim, '\n ')
+    .replace(/<\/div>/gim, '')
+    .replace(/&nbsp;/gim, ' ');
+};
+-e 
+
+=== Файл: ./src/pages/post/components/post-form/post-form.jsx ===
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react/prop-types */
+import { useLayoutEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { savePostAsync } from '../../../../actions';
+import { Input } from '../../../../components';
+import { Icon } from '../../../../components/header/components';
+import { PROP_TYPE } from '../../../../constant';
+import { useServerRequest } from '../../../../hooks';
+import { SpecialPanel } from '../special-panel/special-panel';
+import { sanitizeContent } from './utils/sanitize-content';
+
+export const PostForm = ({ post: { id, title, imageUrl, content, publishedAt } }) => {
+  const [newImageUrl, setNewImageUrl] = useState(imageUrl);
+  const [newTitle, setNewTitle] = useState(title);
+  const contentRef = useRef('');
+  const dispatch = useDispatch();
+  const requestServer = useServerRequest();
+  const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    setNewImageUrl(imageUrl);
+    setNewTitle(title);
+  }, [imageUrl, title]);
+
+  const onSave = () => {
+    const newContent = sanitizeContent(contentRef.current.innerHTML);
+
+    dispatch(
+      savePostAsync(requestServer, {
+        id,
+        imageUrl: newImageUrl,
+        title: newTitle,
+        content: newContent,
+      })
+    ).then(({ id }) => navigate('/post/' + id));
+  };
+
+  const onImageUrlChange = ({ target }) => setNewImageUrl(target.value);
+  const onTitleChange = ({ target }) => setNewTitle(target.value);
+
+  return (
+    <PostFormContainer>
+      <Input value={newImageUrl} onChange={onImageUrlChange} type="text" placeholder={'Ссылка на фото...'} />
+      <Input value={newTitle} onChange={onTitleChange} type="text" placeholder={'Загаловок...'} />
+      <SpecialPanel
+        margin="20px 0 20px"
+        {...{ publishedAt, id }}
+        editButton={<Icon id="fa-floppy-o" margin="0 10px 0 0" onClick={onSave} />}
+      />
+      <div ref={contentRef} className={'post-text'} contentEditable={true} suppressContentEditableWarning={true}>
+        {content}
+      </div>
+    </PostFormContainer>
+  );
+};
+
+const PostFormContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '10px',
+
+  '& .post-text': {
+    whiteSpace: 'pre-line',
+    border: '1px solid black',
+    minHeight: '80px',
+  },
+});
+
+PostForm.propTypes = {
+  post: PROP_TYPE.POST.isRequired,
+};
+-e 
+
+=== Файл: ./src/pages/post/components/index.js ===
+export { PostContent } from './post-content/post-content';
+
+export { Comments } from './comments/comments';
+
+export { PostForm } from './post-form/post-form';
+-e 
+
+=== Файл: ./src/pages/post/components/special-panel/special-panel.jsx ===
+/* eslint-disable react/prop-types */
+import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { CLOSE_MODAL, openModal, removePostAsync } from '../../../../actions';
+import { Icon } from '../../../../components/header/components';
+import { ROLE } from '../../../../constant';
+import { useServerRequest } from '../../../../hooks';
+import { selectUserRole } from '../../../../selectors';
+import { checkAccess } from '../../../../utils';
+
+const SpecialPanelContainer = ({ className, id, publishedAt, editButton, ...props }) => {
+  const dispatch = useDispatch();
+  const requestServer = useServerRequest();
+  const navigate = useNavigate();
+  const roleId = useSelector(selectUserRole);
+
+  const onPostDelete = postId => {
+    dispatch(
+      openModal({
+        text: 'Удалить статью?',
+        onConfirm: () => {
+          dispatch(removePostAsync(requestServer, postId)).then(() => navigate('/'));
+
+          dispatch(CLOSE_MODAL);
+        },
+        onCancel: () => dispatch(CLOSE_MODAL),
+      })
+    );
+  };
+  const isAdmin = checkAccess([ROLE.ADMIN], roleId);
+
+  return (
+    <div className={className} {...props}>
+      <div className="published-at">
+        {publishedAt && <Icon id="fa-calendar-o" margin="0 10px 0 0" size="18px" inactive={true} />}
+        {publishedAt}
+      </div>
+      {isAdmin && (
+        <div className="buttons">
+          {editButton}
+          {publishedAt && <Icon id="fa-trash-o" margin="0 10px 0 0" onClick={() => onPostDelete(id)} />}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const SpecialPanel = styled(SpecialPanelContainer)`
+  display: flex;
+  justify-content: space-between;
+  margin: ${({ margin = ' 0px' }) => margin};
+  font-size: 18px;
+  gap: 5px;
+
+  & .buttons {
+    display: flex;
+  }
+
+  & i {
+    position: relative;
+    top: -1px;
+  }
+
+  & img {
+    float: left;
+    margin: 0 20px 10px 0;
+  }
+
+  & .published-at {
+    display: flex;
+    flex-direction: row;
+  }
+`;
+
+SpecialPanel.propTypes = {
+  id: PropTypes.string.isRequired,
+  publishedAt: PropTypes.string.isRequired,
+  editButton: PropTypes.node.isRequired,
+};
+-e 
+
+=== Файл: ./src/pages/post/components/post-content/post-content.jsx ===
+/* eslint-disable react/prop-types */
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { H2 } from '../../../../components';
+import { Icon } from '../../../../components/header/components';
+import { PROP_TYPE } from '../../../../constant';
+import { SpecialPanel } from '../special-panel/special-panel';
+
+export const PostContent = ({ post: { id, title, imageUrl, content, publishedAt } }) => {
+  const navigate = useNavigate();
+
+  return (
+    <PostContentContainer>
+      <img src={imageUrl} alt={title} width={400} height={300} />
+      <H2>{title}</H2>
+      <SpecialPanel
+        margin="20px 0"
+        {...{ publishedAt, id }}
+        editButton={<Icon id="fa-pencil-square-o" margin="0 10px 0 0" onClick={() => navigate(`/post/${id}/edit`)} />}
+      />
+
+      <div className="post-text">{content}</div>
+    </PostContentContainer>
+  );
+};
+
+const PostContentContainer = styled.div({
+  '& img': {
+    float: 'left',
+    margin: '0 20px 10px 0',
+  },
+
+  '& .post-text': {
+    whiteSpace: 'pre-line',
+  },
+  '& h2': {
+    display: 'flow-root',
+    overflowWrap: 'break-word',
+  },
+});
+
+PostContent.propTypes = {
+  post: PROP_TYPE.POST.isRequired,
+};
+-e 
+
+=== Файл: ./src/pages/post/post.jsx ===
+/* eslint-disable react-hooks/static-components */
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useMatch, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { RESET_POST_DATA, loadPostAsync } from '../../actions';
+import { Error, PrivateContent } from '../../components';
+import { ROLE } from '../../constant';
+import { useServerRequest } from '../../hooks';
+import { selectPost } from '../../selectors';
+import { Comments, PostContent, PostForm } from './components';
+
+export const Post = () => {
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const post = useSelector(selectPost);
+  const dispatch = useDispatch();
+  const params = useParams();
+  const requestServer = useServerRequest();
+  const isEditing = !!useMatch('/post/:postId/edit');
+  const isCreating = !!useMatch('/post');
+
+  useLayoutEffect(() => {
+    dispatch(RESET_POST_DATA);
+  }, [dispatch, isCreating]);
+
+  useEffect(() => {
+    if (isCreating) {
+      setIsLoading(false);
+
+      return;
+    }
+    dispatch(loadPostAsync(requestServer, params.postId)).then(postData => {
+      setError(postData.error);
+
+      setIsLoading(false);
+    });
+  }, [dispatch, requestServer, params.postId, isCreating]);
+
+  if (isLoading) {
+    return null;
+  }
+
+  const SpecificPostPage = () =>
+    isEditing || isCreating ? (
+      <PrivateContent access={[ROLE.ADMIN]} serverError={error}>
+        <PostForm post={post} />
+      </PrivateContent>
+    ) : (
+      <>
+        <PostContent post={post} />
+        <Comments comments={post.comments} postId={post.id} />
+      </>
+    );
+
+  if (error) {
+    <Error error={error} />;
+
+    return;
+  }
+
+  <PostContainer>
+    <SpecificPostPage />
+  </PostContainer>;
+};
+
+const PostContainer = styled.div({
+  padding: '0 40px',
+});
+-e 
+
 === Файл: ./src/pages/index.js ===
 export { Authorization } from './authorization/authorization.jsx';
 export { Main } from './main/Main.jsx';
+export { Post } from "./post/post";
 export { Registration } from './registration/registration.jsx';
 export { Users } from './users/users.jsx';
+
 -e 
 
 === Файл: ./src/pages/users/users.jsx ===
@@ -1553,23 +2137,16 @@ const UsersContainer = styled.div({
 -e 
 
 === Файл: ./src/pages/users/components/user-row/user-row.jsx ===
-import { Icon } from "../../../../components/header/components";
-import styled from "styled-components";
-import PropTypes from "prop-types";
+import { Icon } from '../../../../components/header/components';
+import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
-import { useState } from "react";
-import { useServerRequest } from "../../../../hooks";
-import { PROP_TYPE } from "../../../../constant";
+import { useState } from 'react';
+import { useServerRequest } from '../../../../hooks';
+import { PROP_TYPE } from '../../../../constant';
 
 /* eslint-disable react/prop-types */
-export const UserRow = ({
-  login,
-  id,
-  registeredAt,
-  roleId: userRoleId,
-  rolesList,
-  onUserRemove,
-}) => {
+export const UserRow = ({ login, id, registeredAt, roleId: userRoleId, rolesList, onUserRemove }) => {
   const [selectedtRoleId, setSelectedRoleId] = useState(userRoleId);
   const [initialRoleId, setInitialRoleid] = useState(userRoleId);
 
@@ -1579,9 +2156,7 @@ export const UserRow = ({
   };
 
   const onRoleSave = (userId, newUserRoleId) => {
-    requestServer("updateUserRole", userId, newUserRoleId).then(() =>
-      setInitialRoleid(newUserRoleId)
-    );
+    requestServer('updateUserRole', userId, newUserRoleId).then(() => setInitialRoleid(newUserRoleId));
   };
 
   const isSaveButtonDisabled = selectedtRoleId === initialRoleId;
@@ -1599,51 +2174,43 @@ export const UserRow = ({
               </option>
             ))}
           </select>
-          <Icon
-            id="fa-floppy-o"
-            disabled={isSaveButtonDisabled}
-            onClick={() => onRoleSave(id, selectedtRoleId)}
-          />
+          <Icon id="fa-floppy-o" disabled={isSaveButtonDisabled} onClick={() => onRoleSave(id, selectedtRoleId)} />
         </div>
       </BorderTableRow>
 
-      <Icon
-        id="fa-trash-o"
-        margin="5px 0 0 5px"
-        onClick={() => onUserRemove(id)}
-      />
+      <Icon id="fa-trash-o" margin="5px 0 0 5px" onClick={() => onUserRemove(id)} />
     </UserRowContainer>
   );
 };
 
 const UserRowContainer = styled.div({
-  display: "flex",
-  width: "100%",
-  marginTop: "3px",
+  display: 'flex',
+  width: '100%',
+  marginTop: '3px',
 });
 
 const BorderTableRow = styled.div({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-around",
-  border: "1px solid black",
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-around',
+  border: '1px solid black',
 
-  width: "100%",
+  width: '100%',
 
-  "& .login-column": {
-    width: "172px",
+  '& .login-column': {
+    width: '172px',
   },
-  "& .registered-at-column": {
-    width: "213px",
+  '& .registered-at-column': {
+    width: '213px',
   },
-  "& .role-column": {
-    width: "auto",
-    display: "flex",
-    flexDirection: "row",
-    padding: "3px",
+  '& .role-column': {
+    width: 'auto',
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '3px',
   },
-  "& div": {
-    padding: "0 10px",
+  '& div': {
+    padding: '0 10px',
   },
 });
 
