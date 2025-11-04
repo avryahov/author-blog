@@ -5,4 +5,5 @@ export { Footer } from './footer/Footer.jsx';
 export { H2 } from './h2/h2.jsx';
 export { StyledHeader } from './header/Header.jsx';
 export { Input } from './input/input.jsx';
+export { Modal } from './modal/modal.jsx';
 export { PrivateContent } from './private-content/private-content.jsx';

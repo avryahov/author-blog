@@ -6,8 +6,8 @@ import styled from 'styled-components';
 import { setUser } from './actions';
 import './App.css';
 import { server } from './bff';
-import { Footer, StyledHeader } from './components/';
-import { Authorization, Main, Registration, Users } from './pages/';
+import { Footer, Modal, StyledHeader } from './components/';
+import { Authorization, Main, Post, Registration, Users } from './pages/';
 
 const Content = styled.div({
   margin: '20px',
@@ -50,10 +50,14 @@ function App() {
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Authorization />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="/post/:postId" element={<Post />} />
+          <Route path="/post/:postId/edit" element={<Post />} />
+          <Route path="/post" element={<Post />} />
           <Route path="/users" element={<Users />} />
         </Routes>
       </Content>
       <Footer />
+      <Modal />
     </AppColumn>
   );
 }
