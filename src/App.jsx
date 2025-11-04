@@ -6,8 +6,9 @@ import styled from 'styled-components';
 import { setUser } from './actions';
 import './App.css';
 import { server } from './bff';
-import { Footer, Modal, StyledHeader } from './components/';
+import { Footer, Modal, StyledHeader, Error } from './components/';
 import { Authorization, Main, Post, Registration, Users } from './pages/';
+import { ERROR } from './constant';
 
 const Content = styled.div({
   margin: '20px',
@@ -54,6 +55,7 @@ function App() {
           <Route path="/post/:postId/edit" element={<Post />} />
           <Route path="/post" element={<Post />} />
           <Route path="/users" element={<Users />} />
+          <Route path="*" element={<Error error={ERROR.PAGE_NOT_EXIST} />} />
         </Routes>
       </Content>
       <Footer />
