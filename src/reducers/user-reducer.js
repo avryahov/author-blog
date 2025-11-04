@@ -1,4 +1,4 @@
-import { ROLE, ACTION_TYPE } from '../constant';
+import { ACTION_TYPE, ROLE } from '../constant';
 
 const initialUserState = {
   session: null,
