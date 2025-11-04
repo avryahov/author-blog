@@ -1,9 +1,13 @@
 /* eslint-disable react/prop-types */
+import { useLayoutEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
+import { setUser } from './actions';
 import './App.css';
+import { server } from './bff';
 import { Footer, StyledHeader } from './components/';
-import { Authorization, Main, Registration } from './pages/';
+import { Authorization, Main, Registration, Users } from './pages/';
 
 const Content = styled.div({
   margin: '20px',
@@ -22,6 +26,22 @@ const AppColumn = styled.div({
 });
 
 function App() {
+  const dispatch = useDispatch();
+
+  useLayoutEffect(() => {
+    const user = JSON.parse(sessionStorage.getItem('userData'));
+
+    if (user) {
+      server.authorize(user.login, user.password).then(({ res, error }) => {
+        if (error) {
+          return;
+        }
+
+        dispatch(setUser(res));
+      });
+    }
+  }, []);
+
   return (
     <AppColumn>
       <StyledHeader />
@@ -30,6 +50,7 @@ function App() {
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Authorization />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="/users" element={<Users />} />
         </Routes>
       </Content>
       <Footer />
