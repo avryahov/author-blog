@@ -122,13 +122,6 @@
       "password": "k8s2024",
       "role_id": 2,
       "registered_at": "2024-03-10 10:05"
-    },
-    {
-      "id": "d8e2",
-      "login": "sdfsd",
-      "password": "1234567",
-      "role_id": 2,
-      "registered_at": "2050-02-12 15:50"
     }
   ],
   "posts": [
