@@ -28,7 +28,7 @@ export const Footer = () => {
     axios
       .get('https://api.weather.yandex.ru/v2/forecast?lat=55.7558648&lon=37.617698&lang=ru_RU', { headers })
       .then(({ data: { fact } }) => {
-        setCity("Москва");
+        setCity('Москва');
         setTemperature(fact.temp);
         setPressure(fact.pressure_mm);
       });
