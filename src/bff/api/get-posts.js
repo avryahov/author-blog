@@ -4,12 +4,27 @@ import { transformPost } from '../transformer';
 
 const postsUrl = 'http://localhost:3005/posts';
 
-export const getPosts = async (searchPhrase, page, limit) =>
-  axios
-    .get(postsUrl + '?title_like=' + searchPhrase + '&_page=' + page + '&_limit=' + limit)
-    .then(response => Promise.all([response.data, response.headers['x-total-count']]))
-    .then(([post, count]) => ({
-      posts: post?.map(transformPost),
-      count,
-    }))
-    .catch(error_ => console.error(error_));
+export const getPosts = async (searchPhrase, page, limit) => {
+  try {
+    const response = await axios.get(postsUrl);
+    let allPosts = response.data.map(transformPost);
+
+    if (searchPhrase) {
+      const term = searchPhrase.trim().toLowerCase();
+      allPosts = allPosts.filter(post => post.title.toLowerCase().includes(term));
+    }
+
+    const totalCount = allPosts.length;
+    const startIndex = (page - 1) * limit;
+    const paginatedPosts = allPosts.slice(startIndex, startIndex + limit);
+
+    return {
+      posts: paginatedPosts,
+      count: totalCount,
+    };
+  } catch (error) {
+    console.error('Ошибка загрузки постов:', error);
+
+    return { posts: [], count: 0 };
+  }
+};

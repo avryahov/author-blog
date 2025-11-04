@@ -40,7 +40,7 @@ function App() {
         dispatch(setUser(res));
       });
     }
-  }, []);
+  }, [dispatch]);
 
   return (
     <AppColumn>
