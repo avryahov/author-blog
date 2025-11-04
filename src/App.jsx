@@ -2,8 +2,7 @@
 import { Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import './App.css';
-import { Footer } from './components/footer/footer.jsx';
-import { StyledHeader } from './components/header/header.jsx';
+import { Authorization, Footer, StyledHeader } from './components/';
 import { Main } from './pages/Main.jsx';
 
 const Content = styled.div({
@@ -29,6 +28,7 @@ function App() {
       <Content>
         <Routes>
           <Route path="/" element={<Main />} />
+          <Route path="/login" element={<Authorization />} />
         </Routes>
       </Content>
       <Footer />
