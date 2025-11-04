@@ -2,8 +2,8 @@
 import { Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import './App.css';
-import { Authorization, Footer, StyledHeader } from './components/';
-import { Main } from './pages/Main.jsx';
+import { Footer, StyledHeader } from './components/';
+import { Authorization, Main, Registration } from './pages/';
 
 const Content = styled.div({
   margin: '20px',
@@ -29,6 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Authorization />} />
+          <Route path="/register" element={<Registration />} />
         </Routes>
       </Content>
       <Footer />
